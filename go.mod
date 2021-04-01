@@ -1,3 +1,3 @@
-module github.com/Comcast/gots
+module github.com/DouglasHensley/gots
 
 go 1.12
