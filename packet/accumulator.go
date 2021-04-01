@@ -27,7 +27,7 @@ package packet
 import (
 	"bytes"
 
-	"github.com/Comcast/gots"
+	"github.com/DouglasHensley/gots"
 )
 
 // Accumulator is used to gather multiple packets

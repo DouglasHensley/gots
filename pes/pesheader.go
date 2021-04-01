@@ -28,7 +28,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Comcast/gots"
+	"github.com/DouglasHensley/gots"
 )
 
 // stream_id possibilities
