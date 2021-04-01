@@ -28,6 +28,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // Program Element Stream Descriptor Type.
@@ -41,6 +42,7 @@ const (
 	DOLBY_DIGITAL      uint8 = 12  // 0000 1100 (0x0C)
 	COPYRIGHT          uint8 = 13  // 0000 1101 (0x0D)
 	MAXIMUM_BITRATE    uint8 = 14  // 0000 1110 (0x0E)
+	METADATA           uint8 = 38  // 0010 0110 (0x26)
 	AVC_VIDEO          uint8 = 40  // 0010 1000 (0x28)
 	STREAM_IDENTIFIER  uint8 = 82  // 0101 0010 (0x52)
 	TTML_SUBTITLING    uint8 = 127 // 0111 1111 (0x7F)
@@ -114,13 +116,15 @@ func (descriptor *pmtDescriptor) decode() string {
 	case AUDIO_STREAM:
 		return fmt.Sprintf("Audio Stream (%d)", descriptor.tag)
 	case REGISTRATION:
-		return fmt.Sprintf("Registration (%d)", descriptor.tag)
+		return fmt.Sprintf("Registration (%d) Format Identifier(%#X)", descriptor.tag, descriptor.data)
 	case CONDITIONAL_ACCESS:
 		return fmt.Sprintf("Conditional Access (%d)", descriptor.tag)
 	case SYSTEM_CLOCK:
 		return fmt.Sprintf("System Clock (%d)", descriptor.tag)
 	case COPYRIGHT:
 		return fmt.Sprintf("Copyright (%d)", descriptor.tag)
+	case METADATA:
+		return fmt.Sprintf("Metadata (%d) (%#X)", descriptor.tag, descriptor.data)
 	case AVC_VIDEO:
 		return fmt.Sprintf("AVC Video (%d)", descriptor.tag)
 	case DOLBY_DIGITAL:

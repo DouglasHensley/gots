@@ -33,6 +33,8 @@ const (
 	PmtStreamTypeMpeg4VideoH264 uint8 = 27 // H264
 	PmtStreamTypeMpeg4VideoH265 uint8 = 36 // H265
 
+	PmtStreamTypeKlv uint8 = 6 // PES Packets containing private data
+
 	PmtStreamTypeAac uint8 = 15  // AAC
 	PmtStreamTypeAc3 uint8 = 129 // DD
 	PmtStreamTypeEc3 uint8 = 135 // DD+
@@ -51,6 +53,7 @@ type PmtStreamType interface {
 	IsStreamWherePresentationLagsEbp() bool
 	IsAudioContent() bool
 	IsVideoContent() bool
+	IsKlvContent() bool
 	IsSCTE35Content() bool
 	IsID3Content() bool
 	IsPrivateContent() bool
@@ -84,6 +87,10 @@ func (st pmtStreamType) IsVideoContent() bool {
 		st.code == PmtStreamTypeMpeg4VideoH265 ||
 		st.code == PmtStreamTypeMpeg4Video ||
 		st.code == PmtStreamTypeMpeg2VideoH262
+}
+
+func (st pmtStreamType) IsKlvContent() bool {
+	return st.code == PmtStreamTypeKlv
 }
 
 func (st pmtStreamType) IsSCTE35Content() bool {

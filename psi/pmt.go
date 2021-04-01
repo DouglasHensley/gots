@@ -27,8 +27,11 @@ package psi
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"math"
 	"io"
+	//"os"
 
 	"github.com/Comcast/gots"
 	"github.com/Comcast/gots/packet"
@@ -54,6 +57,8 @@ type PMT interface {
 	RemoveElementaryStreams(pids []uint16)
 	String() string
 	PIDExists(pid uint16) bool
+	VideoPid() uint16
+	KlvPid() uint16
 }
 
 type pmt struct {
@@ -130,6 +135,7 @@ func (p *pmt) parsePMTSection(pmtBytes []byte) error {
 	for offset := programInfoLengthOffset + 2 + programInfoLength; offset < PSIHeaderLen+sectionLength-pmtEsDescriptorStaticLen-CrcLen; {
 		elementaryStreamType := uint8(pmtBytes[offset])
 		elementaryPid := uint16(pmtBytes[offset+1]&0x1f)<<8 | uint16(pmtBytes[offset+2])
+		//fmt.Fprintf(os.Stderr, "parsePMTSection: ESType(%d) PID(%d)\n", elementaryStreamType, elementaryPid)
 		pids = append(pids, elementaryPid)
 		infoLength := uint16(pmtBytes[offset+3]&0x0f)<<8 | uint16(pmtBytes[offset+4])
 
@@ -162,6 +168,24 @@ func (p *pmt) parsePMTSection(pmtBytes []byte) error {
 	p.pids = pids
 	p.elementaryStreams = elementaryStreams
 	return nil
+}
+
+func (p *pmt) VideoPid() uint16 {
+	for _, es := range p.elementaryStreams {
+		if es.IsVideoContent() {
+			return es.ElementaryPid()
+		}
+	}
+	return math.MaxUint16
+}
+
+func (p *pmt) KlvPid() uint16 {
+	for _, es := range p.elementaryStreams {
+		if es.IsKlvContent() {
+			return es.ElementaryPid()
+		}
+	}
+	return math.MaxUint16
 }
 
 func (p *pmt) Pids() []uint16 {

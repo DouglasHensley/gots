@@ -63,6 +63,8 @@ type PESHeader interface {
 	HasPTS() bool
 	//PTS return the PTS time in the header
 	PTS() uint64
+	//
+	SetPTS(uint64)
 	// HasDTS returns true if the header has a DTS time
 	HasDTS() bool
 	//DTS return the DTS time in the header
@@ -75,6 +77,8 @@ type PESHeader interface {
 	DataAligned() bool
 	// PacketStartCodePrefix returns the packet_start_code_prefix. Note that this is a 24 bit value.
 	PacketStartCodePrefix() uint32
+	//
+	Format() string
 }
 
 /*
@@ -236,6 +240,10 @@ func (pes *pESHeader) StreamId() uint8 {
 
 func (pes *pESHeader) PTS() uint64 {
 	return pes.pts
+}
+
+func (pes *pESHeader) SetPTS(pts uint64) {
+	pes.pts = pts
 }
 
 func (pes *pESHeader) DTS() uint64 {
