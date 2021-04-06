@@ -172,49 +172,54 @@ func ExtractTime(bytes []byte) uint64 {
 // pesBytes is the packet payload that contains the PES data
 func NewPESHeader(pesBytes []byte) (PESHeader, error) {
 	pes := new(pESHeader)
-	var err error
 
-	if CheckLength(pesBytes, "PES", 6) {
-
-		pes.packetStartCodePrefix = uint32(pesBytes[0])<<16 | uint32(pesBytes[1])<<8 | uint32(pesBytes[2])
-
-		pes.streamId = uint8(pesBytes[3])
-
-		pes.pesPacketLength = uint16(pesBytes[4])<<8 | uint16(pesBytes[5])
-		pes.dataAlignment = pesBytes[6]&0x04 != 0
-		dataStartIndex := 6
-
-		if pes.optionalFieldsExist() && CheckLength(pesBytes, "Optional Fields", 9) {
-
-			ptsDtsIndicator := (uint8(pesBytes[7]) & 0xc0 >> 6)
-
-			pesHeaderLength := pesBytes[8]
-			dataStartIndex = 9 + int(pesHeaderLength)
-
-			pes.ptsDtsIndicator = ptsDtsIndicator
-
-			if ptsDtsIndicator != gots.PTS_DTS_INDICATOR_NONE &&
-				CheckLength(pesBytes, "PTS", 14) {
-
-				pes.pts = gots.ExtractTime(pesBytes[9:14])
-
-				if pes.ptsDtsIndicator == gots.PTS_DTS_INDICATOR_BOTH &&
-					CheckLength(pesBytes, "DTS", 19) {
-
-					pes.dts = gots.ExtractTime(pesBytes[14:19])
-				}
-			}
-
-		}
-
-		if len(pesBytes) > dataStartIndex {
-			pes.data = pesBytes[dataStartIndex:]
-		}
-	} else {
-		err = errors.New("Invalid length for PES header. Too short to parse")
+	if !CheckLength(pesBytes, "PES", 6) {
+		err := errors.New("Invalid length for PES header. Too short to parse")
+		return pes, err
 	}
 
-	return pes, err
+	pes.packetStartCodePrefix = uint32(pesBytes[0])<<16 | uint32(pesBytes[1])<<8 | uint32(pesBytes[2])
+
+	pes.streamId = uint8(pesBytes[3])
+
+	pes.pesPacketLength = uint16(pesBytes[4])<<8 | uint16(pesBytes[5])
+	pes.dataAlignment = pesBytes[6]&0x04 != 0
+	dataStartIndex := 6
+
+	if pes.optionalFieldsExist() {
+		if !CheckLength(pesBytes, "Optional Fields", 9) {
+			err := errors.New("Invalid length for PES header. Too short to parse")
+			return pes, err
+		}
+		ptsDtsIndicator := (uint8(pesBytes[7]) & 0xc0 >> 6)
+		pesHeaderLength := pesBytes[8]
+		dataStartIndex = 9 + int(pesHeaderLength)
+
+		pes.ptsDtsIndicator = ptsDtsIndicator
+		// Extract PTS
+		if ptsDtsIndicator != gots.PTS_DTS_INDICATOR_NONE {
+			if !CheckLength(pesBytes, "PTS", 14) {
+				err := errors.New("Invalid length for PES header. Too short to parse")
+				return pes, err
+			}
+			pes.pts = gots.ExtractTime(pesBytes[9:14])
+		}
+		// Extract DTS
+		if pes.ptsDtsIndicator == gots.PTS_DTS_INDICATOR_BOTH {
+			if !CheckLength(pesBytes, "DTS", 19) {
+				err := errors.New("Invalid length for PES header. Too short to parse")
+				return pes, err
+			}
+			pes.dts = gots.ExtractTime(pesBytes[14:19])
+		}
+	}
+	// Extract PES Payload
+	if len(pesBytes) < dataStartIndex {
+		err := errors.New("Invalid length for PES header. Too short to parse")
+		return pes, err
+	}
+	pes.data = pesBytes[dataStartIndex:]
+	return pes, nil
 }
 
 func (pes *pESHeader) optionalFieldsExist() bool {

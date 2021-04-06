@@ -181,7 +181,7 @@ func (p *pmt) VideoPid() uint16 {
 
 func (p *pmt) KlvPid() uint16 {
 	for _, es := range p.elementaryStreams {
-		if es.IsKlvContent() {
+		if es.IsPrivateContent() {
 			return es.ElementaryPid()
 		}
 	}
