@@ -43,7 +43,8 @@ const (
 
 	PmtStreamTypeID3 uint8 = 21 // Nielsen ID3
 
-	PmtStreamTypePrivateContent uint8 = 6 // Private Content
+	PmtStreamTypePrivateContent uint8 = 6  // Private Content
+	PmtStreamTypeMetadata       uint8 = 21 // Metadata in PES packets
 )
 
 // PmtStreamType is used to represent elementary steam type inside a PMT
@@ -57,6 +58,8 @@ type PmtStreamType interface {
 	IsSCTE35Content() bool
 	IsID3Content() bool
 	IsPrivateContent() bool
+	IsSyncKlvContent() bool
+	IsAsyncKLVContent() bool
 }
 type pmtStreamType struct {
 	code                uint8
@@ -89,9 +92,13 @@ func (st pmtStreamType) IsVideoContent() bool {
 		st.code == PmtStreamTypeMpeg2VideoH262
 }
 
-// func (st pmtStreamType) IsKlvContent() bool {
-// 	return st.code == PmtStreamTypeKlv
-// }
+func (st pmtStreamType) IsAsyncKLVContent() bool {
+	return st.code == PmtStreamTypePrivateContent
+}
+
+func (st pmtStreamType) IsSyncKlvContent() bool {
+	return st.code == PmtStreamTypeMetadata
+}
 
 func (st pmtStreamType) IsSCTE35Content() bool {
 	return st.code == PmtStreamTypeScte35
