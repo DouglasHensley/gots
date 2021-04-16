@@ -96,7 +96,7 @@ func (st pmtStreamType) IsAsyncKLVContent() bool {
 	return st.code == PmtStreamTypePrivateContent
 }
 
-func (st pmtStreamType) IsSyncKlvContent() bool {
+func (st pmtStreamType) IsSyncKLVContent() bool {
 	return st.code == PmtStreamTypeMetadata
 }
 
