@@ -92,11 +92,11 @@ func (st pmtStreamType) IsVideoContent() bool {
 		st.code == PmtStreamTypeMpeg2VideoH262
 }
 
-func (st pmtStreamType) IsAsyncKLVContent() bool {
+func (st pmtStreamType) IsAsyncKlvContent() bool {
 	return st.code == PmtStreamTypePrivateContent
 }
 
-func (st pmtStreamType) IsSyncKLVContent() bool {
+func (st pmtStreamType) IsSyncKlvContent() bool {
 	return st.code == PmtStreamTypeMetadata
 }
 
