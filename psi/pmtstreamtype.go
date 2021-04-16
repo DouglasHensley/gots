@@ -58,8 +58,8 @@ type PmtStreamType interface {
 	IsSCTE35Content() bool
 	IsID3Content() bool
 	IsPrivateContent() bool
-	IsSyncKLVContent() bool
-	IsAsyncKLVContent() bool
+	IsSyncKlvContent() bool
+	IsAsyncKlvContent() bool
 }
 type pmtStreamType struct {
 	code                uint8
